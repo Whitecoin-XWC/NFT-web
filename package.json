@@ -1,0 +1,53 @@
+{
+  "name": "tokenswap",
+  "version": "1.0.0",
+  "private": true,
+  "config": {
+    "nuxt": {
+      "port": "10070",
+      "host": "0.0.0.0"
+    }
+  },
+  "scripts": {
+    "dev": "cross-env MODE=dev nuxt",
+    "build_dev": "cross-env MODE=dev nuxt build",
+    "build_qa": "cross-env MODE=qa nuxt build",
+    "build": "cross-env MODE=prod nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate",
+    "lint:js": "eslint --ext \".js,.vue\" --ignore-path .gitignore .",
+    "lint:style": "stylelint \"**/*.{vue,css}\" --ignore-path .gitignore",
+    "lint": "yarn lint:js && yarn lint:style"
+  },
+  "dependencies": {
+    "@lzwme/asmd-calc": "^1.1.2",
+    "@nuxtjs/axios": "^5.13.1",
+    "cookie-universal-nuxt": "^2.1.4",
+    "core-js": "^3.9.1",
+    "element-ui": "^2.15.1",
+    "moment": "^2.29.1",
+    "net": "^1.0.2",
+    "nuxt": "^2.15.3",
+    "sockjs-client": "^1.5.1",
+    "stompjs": "^2.3.3",
+    "vue-i18n": "^8.24.4"
+  },
+  "devDependencies": {
+    "@nuxtjs/eslint-config": "^6.0.0",
+    "@nuxtjs/eslint-module": "^3.0.2",
+    "@nuxtjs/stylelint-module": "^4.0.0",
+    "babel-eslint": "^10.1.0",
+    "cross-env": "^7.0.3",
+    "eslint": "^7.22.0",
+    "eslint-config-prettier": "^8.1.0",
+    "eslint-plugin-nuxt": "^2.0.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "eslint-plugin-vue": "^7.7.0",
+    "node-sass": "^6.0.0",
+    "prettier": "^2.2.1",
+    "sass-loader": "^10.1.1",
+    "stylelint": "^13.12.0",
+    "stylelint-config-prettier": "^8.0.2",
+    "stylelint-config-standard": "^21.0.0"
+  }
+}

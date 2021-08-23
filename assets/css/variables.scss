@@ -1,0 +1,18 @@
+/* 原样式修改 */
+.el-table th {
+  background-color: #f9f9f9 !important;
+  color: #b6b6b6;
+}
+
+.el-pagination {
+  text-align: right;
+  padding: 30px 0 !important;
+}
+
+/* 改变主题色变量 */
+$--color-primary: #2CA9FF;
+
+/* 改变 icon 字体路径变量，必需 */
+$--font-path: '~element-ui/lib/theme-chalk/fonts';
+
+@import "~element-ui/packages/theme-chalk/src/index";
