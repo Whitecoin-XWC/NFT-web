@@ -9,7 +9,7 @@
           <el-input v-model="formLabelAlign.introduction" type="textarea"></el-input>
         </el-form-item>
         <el-form-item class="edit-btns">
-          <el-button @click="handleClose">{{ $t('取消') }}</el-button>
+          <el-button class="cancel-btn" @click="handleClose">{{ $t('取消') }}</el-button>
           <el-button class="submit-btn" type="primary" @click="onSubmit">{{ $t('保存') }}</el-button>
         </el-form-item>
       </el-form>
@@ -72,12 +72,27 @@ export default {
     min-height: 126px !important;
   }
   .edit-btns {
-    text-align: right;
     margin-top: 38px;
+    margin-bottom: 40;
+    display: flex;
+    justify-content: center;
+    .cancel-btn {
+      width: 106px;
+      background: #ffffff;
+      border-radius: 6px;
+      border: 1px solid #979797;
+      font-size: 16px;
+      font-weight: 400;
+      color: #666666;
+      margin-right: 40px;
+    }
     .submit-btn {
+      width: 106px;
       color: #ffffff;
-      background-color: #333333;
-      border-color: #333333;
+      background: #595eff;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 400;
     }
   }
 }

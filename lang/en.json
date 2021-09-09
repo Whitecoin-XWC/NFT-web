@@ -163,8 +163,20 @@
   "编辑个人资料":"Edit Profile",
   "购买了这个NFT":"Purchased this NFT",
   "更改了这个NFT的售价":"Changed the price of this NFT",
-  "设置了这个NFT的售价 ":"Set the price of this NFT",
-  "取消了这个NFT的售价":"Canceled the price of this NFT"
-
+  "设置了这个NFT的售价":"Set the price of this NFT",
+  "取消了这个NFT的售价":"Canceled the price of this NFT",
+  "您的余额不足,手续费需要0.01XWC":"Insufficient balance. You have to pay 0.01 XWC for service fee.",
+  "文件最大不能超过20MB":"The maximum file-size is 20MB.",
+  "用户":"User",
+  "操作":"Operation",
+  "金额":"Amount",
+  "交易ID":"Trade ID",
+  "时间":"Time",
+  "留言板":"Message Board",
+  "提交":"Submit",
+  "输出你想留言的信息":"Please enter your message.",
+  "留言信息不能为空":"The message cannot be empty.",
+  "留言成功":"Message Failed",
+  "留言失败":"Message Success"
 
  }

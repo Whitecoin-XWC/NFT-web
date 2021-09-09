@@ -8,7 +8,7 @@
         </div>
         <!-- 搜索框 -->
         <div class="search-container">
-          <el-popover ref="popover" width="455" placement="bottom-start" trigger="click">
+          <el-popover ref="popover" width="406" placement="bottom-start" trigger="click">
             <div ref="serarchBox" slot="reference" class="search">
               <el-input v-model="searchMsg" :placeholder="$t('搜索')" @keyup.13.native="searchList(1)"> </el-input>
               <i slot="reference" class="search-icon el-icon-search" @click="searchList(2)"></i>
@@ -43,26 +43,33 @@
         </div>
       </div>
       <div class="header-r">
+        <!-- 消息通知图标 -->
+        <el-popover width="386" placement="bottom-start" class="notice-popover" trigger="click" @hide="hiddenDialogNotice" @show="showDialogNotice">
+          <div slot="reference" class="msg-box">
+            <span v-if="msgNum" class="msg-num">{{ msgNum }}</span>
+            <img src="../assets/img/header/notice.png" alt="" />
+          </div>
+          <DialogNotice ref="DialogNotice" :msg-num="msgNum" />
+        </el-popover>
+        <!-- 国际化 -->
         <div class="dropDownLang">
           <div class="nowLang" @mouseover="dropDownIsShow = true" @mouseout="dropDownIsShow = false">
-            <a v-cloak src="javaScript:void(0)">{{ nowLang }}<span class="iconfont icon-arrow"></span></a>
+            <a v-cloak src="javaScript:void(0)"><img src="../assets/img/header/i18n.png" alt="" /></a>
             <div v-show="dropDownIsShow" class="lang-menu">
               <li :class="nowLang == '简体中文' ? 'active' : ''" @click="switchLang('cn', '简体中文')">简体中文</li>
               <li :class="nowLang == 'English' ? 'active' : ''" @click="switchLang('en', 'English')">English</li>
             </div>
           </div>
         </div>
-        <!-- 消息通知图标 -->
-        <el-popover width="386" placement="bottom-start" class="notice-popover" trigger="click" @hide="hiddenDialogNotice" @show="showDialogNotice">
-          <div slot="reference" class="msg-box">
-            <span v-if="msgNum" class="msg-num">{{ msgNum }}</span>
-            <i class="el-icon-bell"></i>
-          </div>
-          <DialogNotice ref="DialogNotice" :msg-num="msgNum" />
-        </el-popover>
         <!-- 账户 -->
-        <div v-if="isExtInstalled && isWalletInited" class="user-box" @click="toPersonal">{{ address }}</div>
-        <div v-if="!isExtInstalled || !isWalletInited" class="user-box" style="text-align: center" @click="openDownloadDialog">{{ $t('未连接') }}</div>
+        <div v-if="isExtInstalled && isWalletInited" class="user-box" @click="toPersonal">
+          <i></i>
+          <span :title="address">{{ address.substring(0, 3) }}...{{ address.substring(address.length - 3, address.length) }}</span>
+        </div>
+        <div v-if="!isExtInstalled || !isWalletInited" class="user-box" @click="openDownloadDialog">
+          <i></i>
+          <span :title="$t('未连接')">{{ $t('未连接') }}</span>
+        </div>
         <div class="issue-btn" @click="toPublish">{{ $t('发行') }}</div>
       </div>
     </div>
@@ -104,9 +111,17 @@ export default {
     this.nowLang = this.$cookies.get('_lang') === 'cn' ? '简体中文' : 'English'
     this.initWallet().then(() => {
       this.getUnreadNotice()
+      this.getCoinData()
     })
   },
   methods: {
+    // 获取币种字典表
+    async getCoinData() {
+      const result = await this.$wallet.getCoinList()
+      if (result.code === '0' && result.data) {
+        this.$store.commit('global/set_state', { coinList: result.data })
+      }
+    },
     hiddenDialogNotice() {
       this.$refs.DialogNotice.yourList = []
       this.$refs.DialogNotice.royaltiesList = []
@@ -209,6 +224,10 @@ export default {
     },
     toHome() {
       this.searchMsg = ''
+      if (this.$route.path === '/home') {
+        this.$store.commit('global/set_state', { tabIndex: 5, mediaType: null, status: null, homeCurrentPage: 1 })
+        this.$parent.$parent.$children[1].$children[0].$children[0].getNftList()
+      }
       this.$router.push('/home')
     },
     toPersonal() {
@@ -222,24 +241,22 @@ export default {
 <style scoped lang="scss">
 .header {
   position: relative;
-  width: 100%;
-  height: 117px;
-  background-color: #ffffff;
+  width: 1200px;
+  height: 60px;
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 27px;
-  border-bottom: 2px solid #e6e6e6;
 }
 .search-box {
   position: absolute;
   z-index: 4;
   left: 0;
   top: 0;
-  width: 455px;
+  width: 406px;
   height: 202px;
-  background: #ffffff;
   box-shadow: 0 9px 28px 8px rgba(0, 0, 0, 0.05), 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12);
+  background: #ffffff;
   .pane-scroll {
     width: 100%;
     height: 140px;
@@ -317,8 +334,8 @@ export default {
   align-items: center;
 }
 .head-portrait {
-  width: 50px;
-  height: 50px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   cursor: pointer;
   img {
@@ -327,29 +344,32 @@ export default {
   }
 }
 .search-container {
-  width: 455px;
-  height: 50px;
-  margin-left: 11px;
+  width: 406px;
+  height: 30px;
+  border: 1px solid #b3b6c6;
+  margin-left: 24px;
 }
 .search {
-  width: 455px;
-  height: 50px;
+  width: 100%;
+  height: 100%;
   position: relative;
   /deep/.el-input {
     width: 100%;
     height: 100%;
     .el-input__inner {
       height: 100%;
+      border-radius: 0;
+      border-style: none;
     }
   }
   .search-icon {
     display: inline-block;
-    width: 22px;
-    height: 21px;
+    width: 14px;
+    height: 14px;
     position: absolute;
-    right: 15px;
-    top: 15px;
-    color: #333333;
+    right: 22px;
+    top: 8px;
+    color: #b3b6c6ff;
     cursor: pointer;
   }
 }
@@ -359,47 +379,64 @@ export default {
   .msg-num {
     position: absolute;
     display: inline-block;
-    height: 22px;
-    padding: 0 5px;
-    font-size: 12px;
+    height: 18px;
+    min-width: 18px;
+    max-width: 26px;
+    line-height: 18px;
+    font-size: 8px;
     background: #ff6262;
     border-radius: 50%;
-    border: 2px solid #ffffff;
     color: #ffffff;
     text-align: center;
     top: -10px;
-    right: -10px;
+    right: -11px;
   }
-  .el-icon-bell {
-    font-size: 30px;
-    color: #333333;
+  img {
+    width: 20px;
+    height: 22px;
+    margin-top: 2px;
   }
 }
 .user-box {
-  width: 426px;
-  height: 50px;
-  line-height: 50px;
-  background: #ffffff;
-  box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.06);
-  border-radius: 4px;
-  margin-left: 20px;
+  width: 102px;
+  height: 29px;
+  background: #595eff;
+  border-radius: 15px;
   cursor: pointer;
-  text-indent: 24px;
-  color: #333333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  i {
+    margin-left: 10px;
+    display: block;
+    width: 16px;
+    height: 16px;
+    background: url('../assets/img/header/link-iocn.png');
+    background-size: 100% 100%;
+  }
+  span {
+    width: 62px;
+    font-size: 12px;
+    font-weight: 400;
+    color: #ffffff;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align: center;
+    margin-right: 10px;
+  }
 }
 .issue-btn {
-  width: 100px;
-  height: 50px;
-  background: linear-gradient(180deg, #333333 0%, #333333 100%);
-  box-shadow: 0 5px 8px 0 rgba(0, 0, 0, 0.06);
-  border-radius: 4px;
-  border: 1px solid #ebebeb;
+  width: 102px;
+  height: 29px;
+  background: #595eff;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 29px;
   color: #ffffff;
-  font-size: 18px;
-  font-weight: 600;
-  line-height: 50px;
   text-align: center;
-  margin-left: 20px;
+  margin-left: 35.5px;
   cursor: pointer;
 }
 .dropDownLang {
@@ -407,9 +444,7 @@ export default {
   margin-right: 10px;
   .nowLang {
     cursor: pointer;
-    .icon-arrow {
-      font-size: 6px;
-    }
+
     a {
       display: flex;
       justify-content: center;
@@ -420,8 +455,9 @@ export default {
       font-size: 14px;
       font-weight: 400;
       color: #606266;
-      span {
-        margin-left: 10px;
+      img {
+        width: 24px;
+        height: 24px;
       }
     }
   }

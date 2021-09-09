@@ -230,7 +230,8 @@ export default class Wallet {
   createAuctionNFT(_tokenId, _coin, _price, _minAdd) {
     return new Promise((resolve) => {
       this.nodeClient.afterInited().then(() => {
-        this.approve(ContractAddress.AuctionAddress(), _tokenId).then(async () => {
+        // this.approve(ContractAddress.AuctionAddress(), _tokenId).then(async () => {
+        this.approveAll(walletAddress.address, ContractAddress.AuctionAddress()).then(async () => {
           const price = parseInt(Tools.accMul(_price, coinList[_coin].precision))
           const minAdd = parseInt(Tools.accMul(_minAdd, coinList[_coin].precision))
           const res = await this.createAuction(`${_tokenId},${ContractAddress.NFTAddress()},${this.AuctionCycle},${price},${coinList[_coin].symbol},${minAdd}`)
@@ -318,7 +319,8 @@ export default class Wallet {
   sellSaleNFT(_tokenId, _coin, _price) {
     return new Promise((resolve) => {
       this.nodeClient.afterInited().then(() => {
-        this.approve(ContractAddress.SaleAddress(), _tokenId).then(async () => {
+        // this.approve(ContractAddress.SaleAddress(), _tokenId).then(async () => {
+        this.approveAll(walletAddress.address, ContractAddress.SaleAddress()).then(async () => {
           const price = parseInt(Tools.accMul(_price, coinList[_coin].precision))
           const res = await this.sellNft(`${_tokenId},${ContractAddress.NFTAddress()},${price},${coinList[_coin].symbol}`)
           resolve(Tools.doResultData('0', res, '', '售卖NFT-挂单'))
@@ -477,6 +479,41 @@ export default class Wallet {
           })
         }
       })
+    })
+  }
+
+  /**
+   * 全部NTF授权
+   * @param {*} _walletAddress 钱包地址
+   * @param {*} _contractAddress 需要授权给的合约地址
+   * @returns
+   */
+  approveAll(_walletAddress, _contractAddress) {
+    return new Promise((resolve, reject) => {
+      this.nodeClient
+        .invokeContractOffline(walletAddress.pubKey, ContractAddress.NFTAddress(), 'isApprovedForAll', `${_walletAddress},${_contractAddress}`)
+        .then((res) => {
+          if (res === true || res === 'true') {
+            resolve(Tools.coreLog('不需要授权', 'approveAll'))
+          } else {
+            this.xwcpay.simulateCall(walletGas.assetId, ContractAddress.NFTAddress(), '0', 'setApprovalForAll', `${_contractAddress},true`, {
+              gasPrice: walletGas.minGasPrice,
+              gasLimit: walletGas.gasLimit,
+              listener: (serialNumber, txid, name) => {
+                if (name === 'txhash') {
+                  this.xwcpay.waitTransaction(this.nodeClient, txid, 60000).then(
+                    (wres) => {
+                      resolve(Tools.coreLog(wres, 'approveAll'))
+                    },
+                    (err) => {
+                      reject(Tools.coreLog(err.message), 'approveAll')
+                    },
+                  )
+                }
+              },
+            })
+          }
+        })
     })
   }
 

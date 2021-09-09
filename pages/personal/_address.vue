@@ -14,14 +14,24 @@
     </div>
     <div v-if="nftList.length" class="person-items">
       <div v-for="(item, index) in nftList" :key="index" class="album-item" @click="toDetails(item)">
-        <img v-if="item.mediaType === 1 || item.mediaType === 4" :src="item.fileName" alt="" />
-        <video v-if="item.mediaType === 2" :src="item.fileName" controls controlslist="nodownload"></video>
-        <div v-if="item.mediaType === 3" class="audio">
-          <audio :src="item.fileName" controls controlslist="nodownload"></audio>
+        <div v-if="item.mediaType === 1 || item.mediaType === 4" class="img-preview">
+          <img :src="item.fileName" alt="" />
         </div>
-        <div v-if="item.mediaType === 0" class="file-text">{{ item.txtContent }}</div>
-        <p class="album-title">{{ item.fileTitle }}</p>
-        <p class="album-author">{{ $t('创作者') }}：{{ item.userName }}</p>
+        <div v-if="item.mediaType === 2" class="video-preview">
+          <video :src="item.fileName" controls controlslist="nodownload"></video>
+        </div>
+        <div v-if="item.mediaType === 3" class="audio-preview">
+          <div class="audio">
+            <audio :src="item.fileName" controls controlslist="nodownload"></audio>
+          </div>
+        </div>
+        <div v-if="item.mediaType === 0" class="text-preview">
+          <div class="file-text">{{ item.txtContent }}</div>
+        </div>
+        <div class="album-user">
+          <p class="album-title">{{ item.fileTitle }}</p>
+          <p class="album-author">{{ $t('创作者') }}：{{ item.userName || item.userAddress }}</p>
+        </div>
         <div class="album-price">
           <div v-if="(item.pmPrice && !item.price && !item.auctionMaxPrice) || (!item.pmPrice && !item.price)">
             <p>{{ $t('保留价') }}</p>
@@ -62,6 +72,7 @@
       :total="total"
       :page-size="pageSize"
       :pager-count="5"
+      :current-page="personalCurrentPage"
       layout="prev, pager, next"
       @current-change="pageChange"
     >
@@ -79,16 +90,14 @@ export default {
     return {
       nickName: null,
       introduction: '',
-      currentPage: 1,
-      pageSize: 8,
+      pageSize: 6,
       nftList: [],
       total: 0,
-      source: 0,
       userAddress: this.$route.params.address || this.address,
     }
   },
   computed: {
-    ...mapState('personal', ['isShowEditDialog']),
+    ...mapState('personal', ['isShowEditDialog', 'personalCurrentPage', 'source']),
     ...mapState('global', ['address']),
   },
   mounted() {
@@ -97,7 +106,7 @@ export default {
   },
   methods: {
     pageChange(index) {
-      this.currentPage = index
+      this.$store.commit('personal/set_state', { personalCurrentPage: index })
       this.getUserSeleceNftList()
     },
     editComplete() {
@@ -114,7 +123,7 @@ export default {
     },
     async getUserSeleceNftList() {
       const res = await http(this.$axios).getUserSelectFiles({
-        page: this.currentPage,
+        page: this.personalCurrentPage,
         pageSize: this.pageSize,
         userAddress: this.userAddress,
         source: this.source,
@@ -135,7 +144,7 @@ export default {
       this.$store.commit('personal/set_state', { isShowEditDialog: true })
     },
     tabType(index) {
-      this.source = index
+      this.$store.commit('personal/set_state', { personalCurrentPage: 1, source: index })
       this.getUserSeleceNftList()
     },
   },
@@ -202,9 +211,13 @@ export default {
     }
   }
   .person-btns {
+    width: 1200px;
+    height: 75px;
+    background: #ffffff;
     margin: 0 auto;
     display: flex;
     justify-content: center;
+    align-items: center;
     margin-top: 97px;
   }
   .person-items {
@@ -234,6 +247,13 @@ export default {
   }
   .pagination {
     text-align: center;
+    /deep/.el-pager li {
+      background: transparent;
+    }
+    /deep/ .btn-prev,
+    /deep/ .btn-next {
+      background: transparent;
+    }
   }
 }
 </style>

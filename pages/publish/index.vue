@@ -8,7 +8,7 @@
         <el-form-item>
           <div class="upload-box">
             <div class="upload-text">
-              <span>{{ $t('支持类型') }}：JPG. PNG. SVG. GIF. MP4. MOV. WEBM. MP3. WAV. OGG. TXT. MD…</span>
+              <span>{{ $t('支持类型') }}：JPG.JPEG.PNG. SVG. GIF. MP4. MOV. WEBM. MP3. WAV. OGG. TXT. MD…</span>
               <span> {{ $t('最大') }}: 20 MB</span>
             </div>
             <el-upload class="upload-demo" action="" :accept="accept" :before-upload="beforeUpload" :show-file-list="false">
@@ -112,7 +112,8 @@ export default {
       imgUrl: '',
       fileName: '',
       uploadData: null,
-      accept: '.JPG,.jpg,.PNG,.png,.SVG,.svg,.TIFF,.tiff,.GIF,.gif,.MP4,.mp4,.MOV,.mov,.AVI,.avi,.WEBM,.webm,.MP3,.mp3,.WAV,.wav,.OGG,.ogg,.TXT,.txt,.MD,.md',
+      accept:
+        '.JPG,.jpg,.JPEG,.jpeg,.PNG,.png,.SVG,.svg,.TIFF,.tiff,.GIF,.gif,.MP4,.mp4,.MOV,.mov,.AVI,.avi,.WEBM,.webm,.MP3,.mp3,.WAV,.wav,.OGG,.ogg,.TXT,.txt,.MD,.md',
       rules: {
         title: [
           { required: true, message: this.$t('请输入名称'), trigger: 'blur' },
@@ -161,6 +162,11 @@ export default {
       })
     },
     beforeUpload(file) {
+      const byte = 1024 * 1024 * 20
+      if (file.size > byte) {
+        this.$message.error(this.$t('文件最大不能超过20MB'))
+        return false
+      }
       this.nftFormData.file = file
       this.fileName = file.name
       this.fileType = this.getFileType(this.fileName)
@@ -190,7 +196,7 @@ export default {
         return result
       }
       // 匹配图片
-      const imglist = ['JPG', 'jpg', 'PNG', 'png', 'SVG', 'svg', 'TIFF', 'tiff', 'GIF', 'gif']
+      const imglist = ['JPG', 'jpg', 'JPEG', 'jpeg', 'PNG', 'png', 'SVG', 'svg', 'TIFF', 'tiff', 'GIF', 'gif']
       if (imglist.includes(fileSuffix)) {
         result = 'image'
         return result
@@ -349,6 +355,9 @@ export default {
       position: absolute;
       left: 50%;
       top: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
       transform: translate(-50%, -50%);
       // right: 0;
       // bottom: 0;
@@ -371,10 +380,13 @@ export default {
       }
       video {
         width: 300px;
+        height: 300px;
       }
       img {
-        width: 100%;
-        height: 100%;
+        max-width: 100%;
+        max-height: 100%;
+        min-width: 0;
+        min-height: 0;
         // display: inline-block;
       }
       span {
@@ -466,12 +478,13 @@ export default {
     .back-btn {
       width: 100px;
       height: 50px;
-      background: #f2f2f2;
+      background: #ffffff;
+      border: 1px solid #979797;
       border-radius: 4px;
       text-align: center;
+      color: #666666;
       font-size: 18px;
       font-weight: 600;
-      color: #333333;
       line-height: 50px;
       cursor: pointer;
       margin-right: 20px;
@@ -480,7 +493,7 @@ export default {
     .issue-btn {
       width: 180px;
       height: 50px;
-      background: #333333;
+      background: #595eff;
       border-radius: 4px;
       text-align: center;
       font-size: 18px;

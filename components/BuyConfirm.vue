@@ -6,12 +6,10 @@
           <p>{{ $t('售价') }}：&nbsp;&nbsp;&nbsp;{{ sellPrice }}{{ coin }}</p>
           <p>{{ $t('版权费') }}：&nbsp;&nbsp;&nbsp;{{ copyrightFee }}%</p>
         </div>
-        <div class="content-box">
-          <span>{{ $t('请确认是否购买，购买成功将成功该NFT的拥有者') }}</span>
-          <div class="content2">{{ $t('余额：') }}{{ balance() }}{{ coin }}</div>
-        </div>
+        <div class="content2">{{ $t('余额：') }}{{ balance() }}{{ coin }}</div>
+        <span>{{ $t('请确认是否购买，购买成功将成功该NFT的拥有者') }}</span>
         <el-form-item class="edit-btns">
-          <el-button @click="handleClose">{{ $t('取消') }}</el-button>
+          <el-button class="cancel-btn" @click="handleClose">{{ $t('取消') }}</el-button>
           <el-button class="submit-btn" type="primary" @click="onSubmit">{{ $t('确定') }}</el-button>
         </el-form-item>
       </el-form>
@@ -61,23 +59,35 @@ export default {
         this.$message.error(this.$t('余额不足'))
         return false
       }
-      const res1 = await this.$wallet.buySaleNFT(this.tokenId, this.coin, this.sellPrice)
-      if (res1.code === '0' && res1.data) {
-        const res2 = await http(this.$axios).buyNft({
-          buyUserAddress: this.address,
-          tokenId: this.tokenId,
-          tractionId: res1.data.trxid,
+      try {
+        const approve = await http(this.$axios).apiApprove({
+          message: JSON.stringify({
+            action: 'buySaleNFT',
+            buyUserAddress: this.address,
+            tokenId: this.tokenId,
+            tractionId: '',
+          }),
         })
-        if (res2.code === 200) {
-          this.$message.success(this.$t('购买成功'))
-          this.$parent.getNftDetails()
-          this.$parent.getNftRecord()
-          this.$parent.getAnctionRecordList()
-          this.$store.commit('global/set_state', { isShowBuyConfirm: false })
-        } else {
-          this.$message.error(this.$t('购买失败'))
+        if (approve) {
+          const res1 = await this.$wallet.buySaleNFT(this.tokenId, this.coin, this.sellPrice)
+          if (res1.code === '0' && res1.data) {
+            const res2 = await http(this.$axios).buyNft({
+              buyUserAddress: this.address,
+              tokenId: this.tokenId,
+              tractionId: res1.data.trxid,
+            })
+            if (res2.code === 200) {
+              this.$message.success(this.$t('购买成功'))
+              this.$parent.getNftDetails()
+              this.$parent.getNftRecord()
+              this.$parent.getAnctionRecordList()
+              this.$store.commit('global/set_state', { isShowBuyConfirm: false })
+            } else {
+              this.$message.error(this.$t('购买失败'))
+            }
+          }
         }
-      }
+      } catch (err) {}
     },
   },
 }
@@ -92,37 +102,40 @@ export default {
     width: 25% !important;
   }
   /deep/.el-dialog__title {
-    font-size: 16px;
-    font-weight: 700;
-    color: #000000d9;
     line-height: 24px;
+    font-size: 18px;
+    font-weight: 500;
+    color: #333333;
   }
   /deep/.el-dialog__header {
-    border-bottom: 1px solid #0000000f;
+    border-bottom: 1px solid #d8d8d8;
+    text-align: center;
   }
 
   /deep/.el-dialog__body {
     padding: 20px 28px 10px 28px;
   }
   .edit-btns {
-    text-align: right;
-    margin-top: 38px;
-    margin-bottom: 0;
-    padding-top: 10px;
-    &::before {
-      display: inline-block;
-      content: '';
-      height: 1px;
-      width: 100%;
-      position: absolute;
-      background: #0000000f;
-      bottom: 58px;
-      left: 0;
+    margin-top: 84px;
+    margin-bottom: 40;
+    display: flex;
+    justify-content: center;
+    .cancel-btn {
+      width: 106px;
+      background: #ffffff;
+      border-radius: 6px;
+      border: 1px solid #979797;
+      font-size: 16px;
+      font-weight: 400;
+      color: #666666;
     }
     .submit-btn {
+      width: 106px;
       color: #ffffff;
-      background-color: #333333;
-      border-color: #333333;
+      background: #595eff;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 400;
     }
   }
   .content2 {
@@ -131,7 +144,7 @@ export default {
     font-weight: 600;
     color: #43cee2;
     line-height: 14px;
-    text-align: right;
+    text-align: left;
   }
   .content {
     p {
@@ -149,11 +162,6 @@ export default {
       color: rgba(0, 0, 0, 0.5);
       line-height: 22px;
     }
-  }
-  .content-box {
-    margin-top: 20px;
-    display: flex;
-    justify-content: space-between;
   }
 }
 </style>

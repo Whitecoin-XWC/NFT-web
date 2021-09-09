@@ -22,7 +22,7 @@
           <el-input v-model="nftCreateData.minAdd" :placeholder="$t('请输入最低加价幅度')"></el-input>
         </el-form-item>
         <el-form-item class="edit-btns">
-          <el-button @click="handleClose">{{ $t('取消') }}</el-button>
+          <el-button class="cancel-btn" @click="handleClose">{{ $t('取消') }}</el-button>
           <el-button class="submit-btn" type="primary" @click="onSubmit('ruleForm')">{{ $t('确定') }}</el-button>
         </el-form-item>
       </el-form>
@@ -76,34 +76,64 @@ export default {
     // 创建拍卖
     async createAnction() {
       const { coin, price, minAdd } = this.nftCreateData
-      const res = await this.$wallet.createAuctionNFT(this.tokenId, coin, price, minAdd)
-      if (res.code === '0' && res.data) {
-        const res1 = await http(this.$axios).createAnctionNft({
-          auctionCoin: coin,
-          auctionMinMarkup: minAdd,
-          auctionRetainPrice: price,
-          auctionCreater: this.address,
-          auctionId: res.data.api_result,
-          tradeId: res.data.trxid,
-          auctionStatus: 0,
-          fileTokenId: this.tokenId,
+      try {
+        const approve = await http(this.$axios).apiApprove({
+          message: JSON.stringify({
+            action: 'createAuctionNFT',
+            auctionCoin: coin,
+            auctionMinMarkup: minAdd,
+            auctionRetainPrice: price,
+            auctionCreater: this.address,
+            auctionId: '',
+            tradeId: '',
+            auctionStatus: 0,
+            fileTokenId: this.tokenId,
+          }),
         })
-        this.submitSuccess(res1)
-      }
+        if (approve) {
+          const res = await this.$wallet.createAuctionNFT(this.tokenId, coin, price, minAdd)
+          if (res.code === '0' && res.data) {
+            const res1 = await http(this.$axios).createAnctionNft({
+              auctionCoin: coin,
+              auctionMinMarkup: minAdd,
+              auctionRetainPrice: price,
+              auctionCreater: this.address,
+              auctionId: res.data.api_result,
+              tradeId: res.data.trxid,
+              auctionStatus: 0,
+              fileTokenId: this.tokenId,
+            })
+            this.submitSuccess(res1)
+          }
+        }
+      } catch (err) {}
     },
     // 修改拍卖
     async updateAnctionPriice() {
       const { coin, price, minAdd } = this.nftCreateData
-      const res = await this.$wallet.editAuctionNFT(this.anctionId, coin, price, minAdd)
-      if (res.code === '0') {
-        const res1 = await http(this.$axios).updateAnction({
-          auctionMinMarkup: minAdd,
-          auctionRetainPrice: price,
-          auctionId: this.anctionId,
-          id: this.id,
+      try {
+        const approve = await http(this.$axios).apiApprove({
+          message: JSON.stringify({
+            action: 'editAuctionNFT',
+            auctionMinMarkup: minAdd,
+            auctionRetainPrice: price,
+            auctionId: this.anctionId,
+            id: this.id,
+          }),
         })
-        this.submitSuccess(res1)
-      }
+        if (approve) {
+          const res = await this.$wallet.editAuctionNFT(this.anctionId, coin, price, minAdd)
+          if (res.code === '0') {
+            const res1 = await http(this.$axios).updateAnction({
+              auctionMinMarkup: minAdd,
+              auctionRetainPrice: price,
+              auctionId: this.anctionId,
+              id: this.id,
+            })
+            this.submitSuccess(res1)
+          }
+        }
+      } catch (err) {}
     },
     submitSuccess(res) {
       if (res.code === 200) {
@@ -142,37 +172,40 @@ export default {
     width: 25% !important;
   }
   /deep/.el-dialog__title {
-    font-size: 16px;
-    font-weight: 700;
-    color: #000000d9;
     line-height: 24px;
+    font-size: 18px;
+    font-weight: 500;
+    color: #333333;
   }
   /deep/.el-dialog__header {
-    border-bottom: 1px solid #0000000f;
+    border-bottom: 1px solid #d8d8d8;
+    text-align: center;
   }
 
   /deep/.el-dialog__body {
     padding: 20px 28px 10px 28px;
   }
   .edit-btns {
-    text-align: right;
-    margin-top: 38px;
-    margin-bottom: 0;
-    padding-top: 10px;
-    &::before {
-      display: inline-block;
-      content: '';
-      height: 1px;
-      width: 100%;
-      position: absolute;
-      background: #0000000f;
-      bottom: 58px;
-      left: 0;
+    margin-top: 84px;
+    margin-bottom: 40;
+    display: flex;
+    justify-content: center;
+    .cancel-btn {
+      width: 106px;
+      background: #ffffff;
+      border-radius: 6px;
+      border: 1px solid #979797;
+      font-size: 16px;
+      font-weight: 400;
+      color: #666666;
     }
     .submit-btn {
+      width: 106px;
       color: #ffffff;
-      background-color: #333333;
-      border-color: #333333;
+      background: #595eff;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 400;
     }
   }
   .content {

@@ -28,6 +28,7 @@ export default {
     { src: '~/plugins/i18n' },
     // { src: '~/plugins/sockjs' },
     { src: '~/plugins/utils' },
+    { src: '~/plugins/viewer' },
     { src: '~/plugins/wallet', ssr: false },
   ],
 

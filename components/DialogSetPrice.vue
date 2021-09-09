@@ -18,7 +18,7 @@
           <el-input v-model="sellAlign.price" :placeholder="$t('请输入金额')"></el-input>
         </el-form-item>
         <el-form-item class="edit-btns">
-          <el-button @click="handleClose">{{ $t('取消') }}</el-button>
+          <el-button class="cancel-btn" @click="handleClose">{{ $t('取消') }}</el-button>
           <el-button class="submit-btn" type="primary" @click="onSubmit('ruleForm')">{{ $t('确定') }}</el-button>
         </el-form-item>
       </el-form>
@@ -88,17 +88,45 @@ export default {
     },
     // 创建出售
     async createSell() {
-      const res1 = await this.$wallet.sellSaleNFT(this.tokenId, this.sellAlign.coin, this.sellAlign.price)
-      if (res1.code === '0' && res1.data) {
-        this.setNftPrice(res1.data.trxid)
-      }
+      try {
+        const approve = await http(this.$axios).apiApprove({
+          message: JSON.stringify({
+            action: 'sellSaleNFT',
+            price: this.sellAlign.price,
+            tokenId: this.tokenId,
+            tractionId: '',
+            unit: this.sellAlign.coin,
+            userAddress: this.address,
+          }),
+        })
+        if (approve) {
+          const res1 = await this.$wallet.sellSaleNFT(this.tokenId, this.sellAlign.coin, this.sellAlign.price)
+          if (res1.code === '0' && res1.data) {
+            this.setNftPrice(res1.data.trxid)
+          }
+        }
+      } catch (err) {}
     },
     // 更新出售价
     async updatePricce() {
-      const res1 = await this.$wallet.editSaleNFT(this.tokenId, this.sellAlign.coin, this.sellAlign.price)
-      if (res1.code === '0' && res1.data) {
-        this.setNftPrice(res1.data.trxid)
-      }
+      try {
+        const approve = await http(this.$axios).apiApprove({
+          message: JSON.stringify({
+            action: 'editSaleNFT',
+            price: this.sellAlign.price,
+            tokenId: this.tokenId,
+            tractionId: '',
+            unit: this.sellAlign.coin,
+            userAddress: this.address,
+          }),
+        })
+        if (approve) {
+          const res1 = await this.$wallet.editSaleNFT(this.tokenId, this.sellAlign.coin, this.sellAlign.price)
+          if (res1.code === '0' && res1.data) {
+            this.setNftPrice(res1.data.trxid)
+          }
+        }
+      } catch (err) {}
     },
     onSubmit(formName) {
       this.$refs[formName].validate((valid) => {
@@ -126,37 +154,40 @@ export default {
     width: 25% !important;
   }
   /deep/.el-dialog__title {
-    font-size: 16px;
-    font-weight: 700;
-    color: #000000d9;
     line-height: 24px;
+    font-size: 18px;
+    font-weight: 500;
+    color: #333333;
   }
   /deep/.el-dialog__header {
-    border-bottom: 1px solid #0000000f;
+    border-bottom: 1px solid #d8d8d8;
+    text-align: center;
   }
 
   /deep/.el-dialog__body {
     padding: 20px 28px 10px 28px;
   }
   .edit-btns {
-    text-align: right;
-    margin-top: 38px;
-    margin-bottom: 0;
-    padding-top: 10px;
-    &::before {
-      display: inline-block;
-      content: '';
-      height: 1px;
-      width: 100%;
-      position: absolute;
-      background: #0000000f;
-      bottom: 58px;
-      left: 0;
+    margin-top: 84px;
+    margin-bottom: 40;
+    display: flex;
+    justify-content: center;
+    .cancel-btn {
+      width: 106px;
+      background: #ffffff;
+      border-radius: 6px;
+      border: 1px solid #979797;
+      font-size: 16px;
+      font-weight: 400;
+      color: #666666;
     }
     .submit-btn {
+      width: 106px;
       color: #ffffff;
-      background-color: #333333;
-      border-color: #333333;
+      background: #595eff;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 400;
     }
   }
   /deep/.el-form-item__label {

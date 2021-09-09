@@ -1,8 +1,5 @@
 <template>
   <el-container>
-    <el-header class="header">
-      <MainHeader />
-    </el-header>
     <el-main class="main">
       <Nuxt />
     </el-main>
@@ -22,16 +19,13 @@ export default {
 
 <style scoped lang="scss">
 .header {
-  width: 100%;
-  background: #ffffff;
   margin: 0;
   padding: 0;
-  height: 60px !important;
+  height: 117px !important;
 }
 .main {
   margin: 0;
   padding: 0;
   width: 100%;
-  background: #f4f5f8;
 }
 </style>

@@ -2,6 +2,8 @@ import http from '~/api/http'
 
 export const state = () => ({
   isShowEditDialog: false,
+  personalCurrentPage: 1,
+  source: 0,
 })
 
 export const mutations = {

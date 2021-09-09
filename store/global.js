@@ -18,6 +18,10 @@ export const state = () => ({
   coinList: {},
   isExtInstalled: false, // 是否下载钱包插件
   isWalletInited: false, // 是否链接钱包
+  homeCurrentPage: 1,
+  tabIndex: 5,
+  mediaType: null,
+  status: null,
 })
 
 export const mutations = {

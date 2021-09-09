@@ -12,14 +12,24 @@
     </div>
     <div v-if="nftList.length" class="main-items">
       <div v-for="(item, index) in nftList" :key="index" class="album-item" @click="toDetails(item)">
-        <img v-if="item.mediaType === 1 || item.mediaType === 4" :src="item.fileName" alt="" />
-        <video v-if="item.mediaType === 2" :src="item.fileName" controls controlslist="nodownload"></video>
-        <div v-if="item.mediaType === 3" class="audio">
-          <audio :src="item.fileName" controls controlslist="nodownload"></audio>
+        <div v-if="item.mediaType === 1 || item.mediaType === 4" class="img-preview">
+          <img :src="item.fileName" alt="" />
         </div>
-        <div v-if="item.mediaType === 0" class="file-text">{{ item.txtContent }}</div>
-        <p class="album-title">{{ item.fileTitle }}</p>
-        <p class="album-author">{{ $t('创作者') }}：{{ item.userName }}</p>
+        <div v-if="item.mediaType === 2" class="video-preview">
+          <video :src="item.fileName" controls controlslist="nodownload"></video>
+        </div>
+        <div v-if="item.mediaType === 3" class="audio-preview">
+          <div class="audio">
+            <audio :src="item.fileName" controls controlslist="nodownload"></audio>
+          </div>
+        </div>
+        <div v-if="item.mediaType === 0" class="text-preview">
+          <div class="file-text">{{ item.txtContent }}</div>
+        </div>
+        <div class="album-user">
+          <p class="album-title">{{ item.fileTitle }}</p>
+          <p class="album-author">{{ $t('创作者') }}：{{ item.userName || item.userAddress }}</p>
+        </div>
         <div class="album-price">
           <div v-if="(item.pmPrice && !item.price && !item.auctionMaxPrice) || (!item.pmPrice && !item.price)">
             <p>{{ $t('保留价') }}</p>
@@ -59,6 +69,7 @@
       :total="total"
       :page-size="pageSize"
       :pager-count="5"
+      :current-page="homeCurrentPage"
       layout="prev, pager, next"
       @current-change="pageChange"
     >
@@ -73,17 +84,13 @@ export default {
   props: {},
   data() {
     return {
-      tabIndex: 5,
-      currentPage: 1,
-      pageSize: 8,
+      pageSize: 6,
       nftList: [],
       total: 0,
-      mediaType: null,
-      status: null,
     }
   },
   computed: {
-    ...mapState('global', ['address']),
+    ...mapState('global', ['address', 'homeCurrentPage', 'tabIndex', 'mediaType', 'status']),
   },
   mounted() {
     this.getNftList()
@@ -94,12 +101,12 @@ export default {
       this.$router.push(`/details/${item.id}`)
     },
     pageChange(index) {
-      this.currentPage = index
+      this.$store.commit('global/set_state', { homeCurrentPage: index })
       this.getNftList()
     },
     async getNftList() {
       const res = await http(this.$axios).getSelectIndexList({
-        page: this.currentPage,
+        page: this.homeCurrentPage,
         pageSize: this.pageSize,
         mediaType: this.mediaType,
         status: this.status,
@@ -114,20 +121,15 @@ export default {
       }
     },
     tabType(index) {
+      this.$store.commit('global/set_state', { homeCurrentPage: 1, tabIndex: index })
       if (index < 5) {
-        this.mediaType = index
-        this.status = null
-        this.getNftList()
+        this.$store.commit('global/set_state', { mediaType: index, status: null })
       } else if (index === 5) {
-        this.mediaType = null
-        this.status = null
-        this.getNftList()
+        this.$store.commit('global/set_state', { mediaType: null, status: null })
       } else if (index === 6) {
-        this.mediaType = null
-        this.status = 4
-        this.getNftList()
+        this.$store.commit('global/set_state', { mediaType: null, status: 4 })
       }
-      this.tabIndex = index
+      this.getNftList()
     },
   },
 }
@@ -139,14 +141,19 @@ export default {
   margin: 0 auto;
   width: 1200px;
   .main-btns {
+    width: 1200px;
+    height: 75px;
+    background: #ffffff;
     display: flex;
+    justify-content: center;
+    align-items: center;
     margin-top: 22px;
 
     i {
       height: 50px;
       width: 1px;
       background: #e6e6e6;
-      margin-right: 20px;
+      margin-right: 40px;
     }
   }
   .main-items {
@@ -157,6 +164,13 @@ export default {
   }
   .pagination {
     text-align: center;
+    /deep/.el-pager li {
+      background: transparent;
+    }
+    /deep/ .btn-prev,
+    /deep/ .btn-next {
+      background: transparent;
+    }
   }
   .not-data {
     text-align: center;

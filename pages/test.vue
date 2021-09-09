@@ -62,6 +62,7 @@
 import { ContractAddress } from '~/api/wallet/walletConfig'
 
 export default {
+  layout: 'test',
   props: {},
   data() {
     return {

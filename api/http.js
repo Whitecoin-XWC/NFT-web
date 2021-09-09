@@ -1,5 +1,8 @@
 export default (axios) => {
   return {
+    apiApprove: (params) => {
+      return axios.post(`${process.env.BASE_URL}/approve`, params)
+    },
     // 发行NFT接口
     fileUpload: (params) => {
       return axios.post(`${process.env.BASE_URL}/fileUpload/save`, params)
@@ -99,6 +102,14 @@ export default (axios) => {
     // 获取文件内容
     getFileContet: (url) => {
       return axios.get(url)
+    },
+    // 新增留言
+    addMessage: (params) => {
+      return axios.post(`${process.env.BASE_URL}/nft/addMessage`, params)
+    },
+    // 留言列表
+    getMessageList: (params) => {
+      return axios.post(`${process.env.BASE_URL}/nft/queryMessage`, params)
     },
   }
 }

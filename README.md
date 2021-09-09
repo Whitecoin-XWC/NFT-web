@@ -1,5 +1,5 @@
 测试访问地址：http://154.209.69.121:10070/home
-正式访问地址：http://xwcnft.com/home
+正式访问地址：https://xwcnft.com/home
 
 # NuxtTP
 
